@@ -1,26 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: com.example.telebot.MainApplication
-Class-Path: hk2-utils-2.6.1.jar formsfx-core-11.5.0.jar jersey-entity-fi
- ltering-2.32.jar error_prone_annotations-2.3.4.jar jersey-common-2.32.j
- ar javafx-fxml-17.0.2.jar hk2-locator-2.6.1.jar checker-qual-3.5.0.jar 
- json-20180813.jar jsr305-3.0.2.jar httpclient-4.5.13.jar bootstrapfx-co
- re-0.4.0.jar jackson-jaxrs-base-2.13.2.jar hk2-api-2.6.1.jar jersey-ser
- ver-2.32.jar httpmime-4.5.13.jar jersey-media-json-jackson-2.32.jar jac
- kson-jaxrs-json-provider-2.13.2.jar javafx-fxml-17.0.2-win.jar slf4j-si
- mple-2.0.9.jar grizzly-http-server-2.4.4.jar failureaccess-1.0.1.jar ja
- karta.xml.bind-api-2.3.3.jar jakarta.annotation-api-1.3.5.jar controlsf
- x-11.1.2.jar jackson-module-jaxb-annotations-2.13.2.jar jakarta.activat
- ion-1.2.2.jar guava-30.0-jre.jar jackson-databind-2.13.2.1.jar jersey-h
- k2-2.32.jar listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.
- jar grizzly-http-2.4.4.jar osgi-resource-locator-1.0.3.jar javafx-base-
- 17.0.2.jar jakarta.validation-api-2.0.2.jar jersey-media-jaxb-2.32.jar 
- commons-io-2.11.0.jar grizzly-framework-2.4.4.jar javafx-graphics-17.0.
- 2-win.jar jakarta.inject-2.6.1.jar telegrambots-meta-6.0.1.jar j2objc-a
- nnotations-1.3.jar slf4j-api-2.0.9.jar jackson-core-2.13.2.jar jersey-c
- ontainer-grizzly2-http-2.32.jar javafx-controls-17.0.2.jar aopalliance-
- repackaged-2.6.1.jar jakarta.ws.rs-api-2.1.6.jar javafx-base-17.0.2-win
- .jar javafx-controls-17.0.2-win.jar jersey-client-2.32.jar javafx-graph
- ics-17.0.2.jar javassist-3.25.0-GA.jar jackson-annotations-2.13.2.jar h
- ttpcore-4.4.13.jar commons-logging-1.2.jar telegrambots-6.0.1.jar commo
- ns-codec-1.11.jar
 
