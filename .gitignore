@@ -11,7 +11,11 @@ target/
 *.iws
 *.iml
 *.ipr
+
+### configs
 src/main/resources/config.properties
+### db
+src/main/resources/db/*
 
 ### Eclipse ###
 .apt_generated

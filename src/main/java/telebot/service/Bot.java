@@ -1,5 +1,7 @@
-package com.example.telebot;
+package telebot.service;
 
+import telebot.db.DBConnector;
+import telebot.config.BotConfig;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.CopyMessage;
@@ -12,19 +14,23 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-
-import static com.example.telebot.BotConfig.botName;
-import static com.example.telebot.BotConfig.botToken;
-import static com.example.telebot.MainApplication.keyboardM1;
+import static telebot.config.BotConfig.botName;
+import static telebot.config.BotConfig.botToken;
 
 
 public class Bot extends TelegramLongPollingBot {
+    public Map<User, UserData> usersData;
+    public BotConfig bc;
+    public InlineKeyboardMarkup keyboardM1;
+    public boolean ready = true;
 
-    static public List<Message> list = new LinkedList<>();
-    static public boolean ready = true;
+    public Bot() {
+        usersData = new HashMap<>();
+    }
 
 
     @Override
@@ -39,10 +45,10 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        //???
         if (!isReadyToGetQuery()) {
             return;
         }
-
 
         if(update.hasCallbackQuery()) {
             try {
@@ -55,11 +61,13 @@ public class Bot extends TelegramLongPollingBot {
             }
             return;
         }
-        if (update.hasMessage()) {
 
+        if (update.hasMessage()) {
             Message message = update.getMessage();
             User user = message.getFrom();
             Long userId = user.getId();
+
+            usersData.putIfAbsent(user, new UserData());
 
 
             if (message.isCommand()) {
@@ -84,9 +92,10 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendText(Long who, String what){
+    public void sendText(Long userId, String what){
+
         SendMessage sm = SendMessage.builder()
-                .chatId(who.toString()) //Who are we sending a message to
+                .chatId(userId.toString()) //Who are we sending a message to
                 .text(what).build();    //Message content
         try {
             execute(sm);                        //Actually sending the message
@@ -96,20 +105,19 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void executeCommand(Long userId, String txt) {
-        boolean screaming = true;
-        if (txt.equals("/scream"))
-            screaming = true;
-        else if (txt.equals("/whisper"))
-            screaming = false;
-        else if (txt.equals("/menu"))
-            sendMenu(userId, "<b>Menu 1</b>", keyboardM1);
+
+        switch (txt) {
+            case "/scream" -> sendText(userId, "ору.");
+            case "/whisper" -> sendText(userId, "шепчу.");
+            case "/menu" -> sendMenu(userId, "<b>Menu 1</b>", keyboardM1);
+        }
         return;
     }
 
-    public void copyMessage(Long who, Integer msgId){
+    public void copyMessage(Long UserId, Integer msgId){
         CopyMessage cm = CopyMessage.builder()
-                .fromChatId(who.toString())  //We copy from the user
-                .chatId(who.toString())      //And send it back to him
+                .fromChatId(UserId.toString())  //We copy from the user
+                .chatId(UserId.toString())      //And send it back to him
                 .messageId(msgId)            //Specifying what message
                 .build();
         try {
@@ -119,8 +127,8 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMenu(Long who, String txt, InlineKeyboardMarkup kb){
-        SendMessage sm = SendMessage.builder().chatId(who.toString())
+    public void sendMenu(Long userId, String txt, InlineKeyboardMarkup kb){
+        SendMessage sm = SendMessage.builder().chatId(userId.toString())
                 .parseMode("HTML").text(txt)
                 .replyMarkup(kb).build();
 
@@ -158,13 +166,21 @@ public class Bot extends TelegramLongPollingBot {
 
     private void testText(User user, Message message) {
         Long userId = user.getId();
+        UserData userData = usersData.get(user);
 
         if (message.hasText()) {
             sendText(userId, "ты лох, " + user.getFirstName() +
                     ", зачем ты это написал: \n" + message.getText() + "\nа?");
 
-            list.add(message);
-            for (Message m: list) {
+            try {
+                DBConnector.readDB();
+            } catch (SQLException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            userData.messageList.add(message);
+
+            for (Message m: userData.messageList) {
                 try {
                     sendText(userId, m.getText());
                 } catch (Exception e) {
