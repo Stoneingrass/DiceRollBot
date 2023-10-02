@@ -15,7 +15,7 @@ target/
 ### configs
 src/main/resources/config.properties
 ### db
-src/main/resources/db/*
+src/main/assets/BotDB.sqlite
 
 ### Eclipse ###
 .apt_generated
