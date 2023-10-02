@@ -17,9 +17,13 @@ public class MainApplication{
     public static InlineKeyboardMarkup keyboardM1;
 
     //как ограничивать количество запросов?
-    public static void main(String[] args) throws TelegramApiException, TelegramApiException {
+    public static void main(String[] args) throws TelegramApiException {
+        BotConfig bc = new BotConfig();
+        bc.configureBot();
+
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         botsApi.registerBot(new Bot());
+
 
 
         TimerTask task = new TimerTask() {

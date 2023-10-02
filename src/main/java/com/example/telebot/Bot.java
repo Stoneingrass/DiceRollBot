@@ -16,18 +16,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-
+import static com.example.telebot.BotConfig.botName;
+import static com.example.telebot.BotConfig.botToken;
 import static com.example.telebot.MainApplication.keyboardM1;
+
 
 public class Bot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
-        return "SvirillyaBot";
+        return botName;
     }
 
     @Override
     public String getBotToken() {
-        return "6377867338:AAH1infebiTqpYN6Q4slznKQOFF771TYpQw";
+        return botToken;
     }
 
     static public List<Message> list = new LinkedList<>();
