@@ -22,6 +22,11 @@ import static com.example.telebot.MainApplication.keyboardM1;
 
 
 public class Bot extends TelegramLongPollingBot {
+
+    static public List<Message> list = new LinkedList<>();
+    static public boolean ready = true;
+
+
     @Override
     public String getBotUsername() {
         return botName;
@@ -31,10 +36,6 @@ public class Bot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botToken;
     }
-
-    static public List<Message> list = new LinkedList<>();
-    static public boolean ready = true;
-
 
     @Override
     public void onUpdateReceived(Update update) {

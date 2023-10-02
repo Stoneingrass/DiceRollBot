@@ -20,21 +20,12 @@ public class MainApplication{
     public static void main(String[] args) throws TelegramApiException {
         BotConfig bc = new BotConfig();
         bc.configureBot();
+        bc.runQueryTimer();
 
         TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
         botsApi.registerBot(new Bot());
 
 
-
-        TimerTask task = new TimerTask() {
-            public void run() {
-                ready = true;
-            }
-        };
-        Timer timer = new Timer("Timer");
-        long delay = 500L;
-        long period = 500L;
-        timer.scheduleAtFixedRate (task, delay, period);
 
 
         var next = InlineKeyboardButton.builder()

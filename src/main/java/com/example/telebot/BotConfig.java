@@ -4,6 +4,10 @@ import org.glassfish.jersey.jaxb.internal.XmlCollectionJaxbProvider;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.example.telebot.Bot.ready;
 
 public class BotConfig {
     public static String botName;
@@ -23,5 +27,17 @@ public class BotConfig {
         catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public void runQueryTimer() {
+        TimerTask task = new TimerTask() {
+            public void run() {
+                ready = true;
+            }
+        };
+        Timer timer = new Timer("Timer");
+        long delay = 500L;
+        long period = 500L;
+        timer.scheduleAtFixedRate (task, delay, period);
     }
 }
