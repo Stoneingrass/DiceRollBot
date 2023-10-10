@@ -6,19 +6,22 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class BotConfig {
-    public static String botName;
-    public static String botToken;
+    public String botName;
+    public String botToken;
+    public String appName;
+    public String appLink;
+    public String dbFile;
 
-    public void config() {
-
+    public BotConfig() {
         Properties prop = new Properties();
         try {
-            //load a properties file from class path, inside static method
             prop.load(XmlCollectionJaxbProvider.App.class.getClassLoader().getResourceAsStream("config.properties"));
 
-            //get the property value and print it out
             botToken=prop.getProperty("bot_token");
             botName=prop.getProperty("bot_name");
+            appName=prop.getProperty("app_name");
+            appLink =prop.getProperty("app_link");
+            dbFile=prop.getProperty("db_file");
         }
         catch (IOException ex) {
             ex.printStackTrace();

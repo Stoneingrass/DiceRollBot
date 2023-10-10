@@ -18,14 +18,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static telebot.config.BotConfig.botName;
-import static telebot.config.BotConfig.botToken;
-
 
 public class Bot extends TelegramLongPollingBot {
-    public Map<User, UserData> usersData;
-    public BotConfig bc;
-    public InlineKeyboardMarkup keyboardM1;
+    public BotConfig config;
+    public Map<Long, UserData> usersData;
+    public InlineKeyboardMarkup inlineKB;
     public boolean ready = true;
 
     public Bot() {
@@ -35,12 +32,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return botName;
+        return this.config.botName;
     }
 
     @Override
     public String getBotToken() {
-        return botToken;
+        return this.config.botToken;
     }
 
     @Override
@@ -67,7 +64,6 @@ public class Bot extends TelegramLongPollingBot {
             User user = message.getFrom();
             Long userId = user.getId();
 
-            usersData.putIfAbsent(user, new UserData());
 
 
             if (message.isCommand()) {
@@ -109,7 +105,7 @@ public class Bot extends TelegramLongPollingBot {
         switch (txt) {
             case "/scream" -> sendText(userId, "ору.");
             case "/whisper" -> sendText(userId, "шепчу.");
-            case "/menu" -> sendMenu(userId, "<b>Menu 1</b>", keyboardM1);
+            case "/menu" -> sendMenu(userId, "<b>Menu 1</b>", inlineKB);
         }
         return;
     }
@@ -150,10 +146,10 @@ public class Bot extends TelegramLongPollingBot {
 
         if(data.equals("next")) {
             newTxt.setText("MENU 2");
-            newKb.setReplyMarkup(keyboardM1);
+            newKb.setReplyMarkup(inlineKB);
         } else if(data.equals("back")) {
             newTxt.setText("MENU 1");
-            newKb.setReplyMarkup(keyboardM1);
+            newKb.setReplyMarkup(inlineKB);
         }
 
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
@@ -166,23 +162,25 @@ public class Bot extends TelegramLongPollingBot {
 
     private void testText(User user, Message message) {
         Long userId = user.getId();
-        UserData userData = usersData.get(user);
+        UserData userData = usersData.get(userId);
 
         if (message.hasText()) {
-            sendText(userId, "ты лох, " + user.getFirstName() +
-                    ", зачем ты это написал: \n" + message.getText() + "\nа?");
+            sendText(userId, String.format(
+                    "Уважаемый (-ая) %s! Благодарю вас за Ваши сообщения! " +
+                            "Вот список всех ваших предыдущих сообщений:", user.getFirstName()));
 
+            //add to user data
+            userData.messageList.add(message.getText());
+            //add to db
             try {
-                DBConnector.readDB();
-            } catch (SQLException | ClassNotFoundException e) {
+                DBConnector.writeUserMessage(userId, message.getText());
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
 
-            userData.messageList.add(message);
-
-            for (Message m: userData.messageList) {
+            for (String m: userData.messageList) {
                 try {
-                    sendText(userId, m.getText());
+                    sendText(userId, m);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }

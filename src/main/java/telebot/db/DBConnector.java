@@ -1,60 +1,53 @@
 package telebot.db;
 
+import telebot.service.UserData;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 public class DBConnector {
 
-    public static Connection connection;
-    public static Statement statement;
-    public static ResultSet resultSet;
+    private static Connection connection;
+    private static Statement statement;
+    private static ResultSet resultSet;
 
 
-    public static void connect() throws ClassNotFoundException, SQLException {
+    public static void connect(String dbFile) throws ClassNotFoundException, SQLException {
         connection = null;
         Class.forName("org.sqlite.JDBC");
-        connection = DriverManager.getConnection("jdbc:sqlite:src/main/assets/BotDB.sqlite");
+        connection = DriverManager.getConnection(dbFile);
 
         statement = connection.createStatement();
     }
 
+    public static Map<Long, UserData> getUsersMessages() throws SQLException {
+        resultSet = statement.executeQuery("SELECT * FROM user_messages");
 
-    // --------Заполнение таблицы--------
-    public static void writeDB() throws SQLException {
-        statement.execute("INSERT INTO users ('id', 'name', 'phone') VALUES (1, 'Petya', 125453); ");
-        statement.execute("INSERT INTO users ('id', 'name', 'phone') VALUES (2, 'Vasya', 321789); ");
-        statement.execute("INSERT INTO users ('id', 'name', 'phone') VALUES (3, 'Masha', 456123); ");
-
-        System.out.println("Таблица заполнена");
-    }
-
-    // -------- Вывод таблицы--------
-    public static void readDB() throws ClassNotFoundException, SQLException {
-        resultSet = statement.executeQuery("SELECT * FROM users");
+        Map<Long, UserData> usersData = new HashMap<>();
+        Long userId;
 
         while (resultSet.next()) {
-            int id = resultSet.getInt("id");
-            String name = resultSet.getString("name");
-            String phone = resultSet.getString("phone");
-            System.out.println("ID = " + id);
-            System.out.println("name = " + name);
-            System.out.println("phone = " + phone);
-            System.out.println();
+            userId = resultSet.getLong("user_id");
+
+            usersData.putIfAbsent(userId, new UserData());
+            usersData.get(userId).messageList.add(resultSet.getString("message_text"));
         }
 
-        System.out.println("Таблица выведена");
+        return usersData;
     }
 
-    // --------Закрытие--------
+    public static void writeUserMessage(Long userId, String messageText) throws SQLException {
+        statement.execute(String.format("INSERT INTO user_messages ('user_id', 'message_text') VALUES (%d, \"%s\");", userId, messageText));
+
+    }
+
     public static void closeDB() throws SQLException {
         connection.close();
         statement.close();
         resultSet.close();
-
-        System.out.println("Соединения закрыты");
     }
-
 }

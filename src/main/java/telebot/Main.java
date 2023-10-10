@@ -1,8 +1,7 @@
 package telebot;
 
-import telebot.db.DBConnector;
-import telebot.config.BotInit;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import telebot.config.BotInit;
 
 import java.sql.SQLException;
 
@@ -10,15 +9,12 @@ import java.sql.SQLException;
 public class Main {
     //как ограничивать количество запросов?
     //потом переконструировать под спринг
-    //инкапсуляция
-    //добавить название бд в конфиг?
+    //инкапсуляция, геттеры сеттеры
+    //ссылку на приложение в конфиг
+    //ошибка при запуске .jar через консоль
 
-    public static void main(String[] args) throws TelegramApiException, SQLException, ClassNotFoundException {
-        BotInit bi = new BotInit();
-        bi.init();
-
-        DBConnector.connect();
-
-        //DBConnector.closeDB();
+    public static void main(String[] args) throws SQLException, ClassNotFoundException, TelegramApiException {
+        BotInit botInit = new BotInit();
+        botInit.init();
     }
 }
