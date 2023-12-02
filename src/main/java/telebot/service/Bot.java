@@ -1,5 +1,11 @@
 package telebot.service;
 
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.webapp.AnswerWebAppQuery;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.InlineQuery;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiValidationException;
 import telebot.db.DBConnector;
 import telebot.config.BotConfig;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -14,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +52,19 @@ public class Bot extends TelegramLongPollingBot {
         //???
         if (!isReadyToGetQuery()) {
             return;
+        }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if(update.hasInlineQuery()) {
+            System.out.println(update.getInlineQuery().getQuery());
+
+            try {
+                answerWebApp(update.getInlineQuery().getFrom().getId(),
+                        update.getInlineQuery().getId(),
+                        update.getInlineQuery().getQuery());
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if(update.hasCallbackQuery()) {
@@ -106,6 +126,9 @@ public class Bot extends TelegramLongPollingBot {
             case "/scream" -> sendText(userId, "ору.");
             case "/whisper" -> sendText(userId, "шепчу.");
             case "/menu" -> sendMenu(userId, "<b>Menu 1</b>", inlineKB);
+            case "/text" -> {
+                System.out.println();
+            }
         }
         return;
     }
@@ -158,19 +181,39 @@ public class Bot extends TelegramLongPollingBot {
         execute(close);
         execute(newTxt);
         execute(newKb);
+
     }
 
-    private void testText(User user, Message message) {
+    private void answerWebApp(Long id, String queryId, String data) throws TelegramApiException {
+
+        AnswerWebAppQuery answerWebAppQuery = AnswerWebAppQuery.builder()
+                .webAppQueryId(queryId).build();
+
+        execute(answerWebAppQuery);
+
+        System.out.println(id + queryId + data);
+    }
+
+        private void testText(User user, Message message) {
         Long userId = user.getId();
-        UserData userData = usersData.get(userId);
+        UserData currentUserData;
+        if(!usersData.containsKey(userId)) {
+            usersData.put(userId, new UserData());
+        }
+        currentUserData = usersData.get(userId);
+
+
+
+
+        final int nShownMessages = 10;
 
         if (message.hasText()) {
             sendText(userId, String.format(
                     "Уважаемый (-ая) %s! Благодарю вас за Ваши сообщения! " +
-                            "Вот список всех ваших предыдущих сообщений:", user.getFirstName()));
+                            "Вот список %d ваших предыдущих сообщений:", user.getFirstName(), nShownMessages));
 
             //add to user data
-            userData.messageList.add(message.getText());
+            currentUserData.messageList.add(message.getText());
             //add to db
             try {
                 DBConnector.writeUserMessage(userId, message.getText());
@@ -178,7 +221,9 @@ public class Bot extends TelegramLongPollingBot {
                 throw new RuntimeException(e);
             }
 
-            for (String m: userData.messageList) {
+            for (String m: currentUserData.messageList.subList(
+                    Math.max(0, currentUserData.messageList.size()-nShownMessages),
+                    currentUserData.messageList.size())) {
                 try {
                     sendText(userId, m);
                 } catch (Exception e) {
